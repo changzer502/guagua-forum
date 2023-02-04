@@ -62,7 +62,7 @@ public class UserController {
             return "/site/setting";
         }
         //生成随机文件名
-        String s = CommunityUtil.generateUUID() + suffix;
+        fileName = CommunityUtil.generateUUID() + suffix;
         //确定文件存放的路径
         File dest = new File(uploadPath + "/" + fileName);
         try {
@@ -102,6 +102,34 @@ public class UserController {
             throw new RuntimeException("读取图片失败");
         }
     }
+
+
+    @PostMapping("/password")
+    public String updatePassword(@CookieValue("ticket") String ticket, String oldPassword, String newPassword, Model model) {
+        if (StringUtils.isBlank(oldPassword)){
+            model.addAttribute("oldPasswordMsg","请输入原始密码!");
+            return "/site/setting";
+        }
+        if (StringUtils.isBlank(newPassword)){
+            model.addAttribute("newPasswordMsg","请输入新密码!");
+            return "/site/setting";
+        }
+        //校验旧密码
+        User user = hostHolder.getUser();
+        String password = CommunityUtil.MD5(oldPassword + user.getSalt());
+        if (password==null || !password.equals(user.getPassword())){
+            model.addAttribute("oldPasswordMsg","旧密码错误！");
+            return "/site/setting";
+        }
+        //更新数据库密码
+        password = CommunityUtil.MD5(newPassword + user.getSalt());
+        user.setPassword(password);
+        userService.updatePassword(user.getId(), user.getPassword());
+        //更新ticket状态
+        userService.logout(ticket);
+        return "redirect:/login";
+    }
+
 
 
     //@LoginRequired
