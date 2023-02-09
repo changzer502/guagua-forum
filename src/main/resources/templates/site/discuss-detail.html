@@ -21,7 +21,7 @@
 				<!-- 标题 -->
 				<h6 class="mb-4">
 					<img src="http://static.nowcoder.com/images/img/icons/ico-discuss.png"/>
-					<span>备战春招，面试刷题跟他复习，一个月全搞定！</span>
+					<span th:utext="${post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</span>
 					<div class="float-right">
 						<button type="button" class="btn btn-danger btn-sm">置顶</button>
 						<button type="button" class="btn btn-danger btn-sm">加精</button>
@@ -31,12 +31,12 @@
 				<!-- 作者 -->
 				<div class="media pb-3 border-bottom">
 					<a href="profile.html">
-						<img src="http://images.nowcoder.com/head/1t.png" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" >
+						<img th:src="${user.headerUrl}" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" >
 					</a>
 					<div class="media-body">
-						<div class="mt-0 text-warning">寒江雪</div>
+						<div class="mt-0 text-warning" th:utext="${user.username}">寒江雪</div>
 						<div class="text-muted mt-3">
-							发布于 <b>2019-04-15 15:32:18</b>
+							发布于 <b th:text="${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
 							<ul class="d-inline float-right">
 								<li class="d-inline ml-2"><a href="#" class="text-primary">赞 11</a></li>
 								<li class="d-inline ml-2">|</li>
@@ -46,7 +46,7 @@
 					</div>
 				</div>
 				<!-- 正文 -->
-				<div class="mt-4 mb-3 content">
+				<div class="mt-4 mb-3 content" th:utext="${post.content}">
 					金三银四的金三已经到了，你还沉浸在过年的喜悦中吗？
 					如果是，那我要让你清醒一下了：目前大部分公司已经开启了内推，正式网申也将在3月份陆续开始，金三银四，春招的求职黄金时期已经来啦！！！
 					再不准备，作为19应届生的你可能就找不到工作了。。。作为20届实习生的你可能就找不到实习了。。。
