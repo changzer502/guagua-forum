@@ -142,10 +142,5 @@ public class UserController {
         return "/site/profile";
     }
 
-    //@LoginRequired
-    @RequestMapping(path = "/letter", method = RequestMethod.GET)
-    public String getletterPage() {
-        return "/site/letter";
-    }
 
 }
