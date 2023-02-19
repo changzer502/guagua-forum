@@ -11,6 +11,9 @@
     <sql id="insertFields">
         user_id, title, content, type, status, create_time, comment_count, score
     </sql>
+    <update id="updateCommentCount">
+        update discuss_post set comment_count = #{commentCount} where id = #{id}
+    </update>
 
     <select id="selectDiscussPosts" resultType="DiscussPost">
         select <include refid="selectFields"></include>

@@ -135,8 +135,10 @@ public class UserController {
 
 
     //@LoginRequired
-    @RequestMapping(path = "/profile", method = RequestMethod.GET)
-    public String getprofilePage() {
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getprofilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        model.addAttribute("user",user);
         return "/site/profile";
     }
 
