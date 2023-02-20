@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,5 +61,40 @@ public class MessageController {
         int letterUnreadCount = messageService.findLetterUnreadCount(user.getId(), null);
         model.addAttribute("letterUnreadCount", letterUnreadCount);
         return "/site/letter";
+    }
+
+    @GetMapping("/letter/detail/{conversationId}")
+    public String getConversationDetail(@PathVariable String conversationId, Model model, Page page){
+        page.setLimit(5);
+        page.setPath("/letter/detail/"+conversationId);
+        page.setRows(messageService.findLetterCount(conversationId));
+
+        //失信列表
+        List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
+        List<Map<String,Object>> letters = new ArrayList<Map<String,Object>>();
+        if (letterList != null){
+            for (Message message:letterList){
+                Map<String,Object> map = new HashMap<String,Object>();
+                map.put("letter", message);
+                map.put("fromUser", userService.findUserById(message.getFromId()));
+                letters.add(map);
+            }
+        }
+        model.addAttribute("letters",letters);
+
+        model.addAttribute("target",getLetterTarget(conversationId));
+        return "/site/letter-detail";
+
+    }
+
+    public User getLetterTarget(String conversationId){
+        String[] ids = conversationId.split("_");
+        int id0 = Integer.parseInt(ids[0]);
+        int id1 = Integer.parseInt(ids[1]);
+        if (hostHolder.getUser().getId() == id0){
+            return userService.findUserById(id1);
+        }else {
+            return userService.findUserById(id0);
+        }
     }
 }
