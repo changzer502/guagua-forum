@@ -5,17 +5,18 @@ import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.MessageService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author changzer
@@ -72,13 +73,22 @@ public class MessageController {
         //失信列表
         List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
         List<Map<String,Object>> letters = new ArrayList<Map<String,Object>>();
+        List<Integer> ids = new ArrayList<>();
         if (letterList != null){
             for (Message message:letterList){
                 Map<String,Object> map = new HashMap<String,Object>();
                 map.put("letter", message);
                 map.put("fromUser", userService.findUserById(message.getFromId()));
                 letters.add(map);
+
+                //获得未读消息的id
+                if (hostHolder.getUser().getId() == message.getToId() && message.getStatus() == 0){
+                    ids.add(message.getId());
+                }
             }
+        }
+        if (!ids.isEmpty()){
+            messageService.readMessage(ids);
         }
         model.addAttribute("letters",letters);
 
@@ -96,5 +106,25 @@ public class MessageController {
         }else {
             return userService.findUserById(id0);
         }
+    }
+    @PostMapping("/letter/send")
+    @ResponseBody
+    public String sendLetter(String toName, String content){
+        User toUser = userService.getUserByUsername(toName);
+        if (toUser == null){
+            return CommunityUtil.getJSONString(1,"目标用户不存在！");
+        }
+        Message message = new Message();
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(toUser.getId());
+        message.setContent(content);
+        message.setCreateTime(new Date());
+        if (message.getFromId() < message.getToId()){
+            message.setConversationId(message.getFromId() + "_" + message.getToId());
+        }else{
+            message.setConversationId(message.getToId() + "_" + message.getFromId());
+        }
+        messageService.addMessage(message);
+        return CommunityUtil.getJSONString(0);
     }
 }
