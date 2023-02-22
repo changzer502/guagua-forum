@@ -36,6 +36,7 @@
 					<div class="media-body">
 						<h5 class="mt-0 text-warning">
 							<span th:utext="${user.username}">nowcoder</span>
+							<input type="hidden" name="entityId" id="entityId" th:value="${user.id}">
 							<button type="button" class="btn btn-info btn-sm float-right mr-5 follow-btn">关注TA</button>
 						</h5>
 						<div class="text-muted mt-3">
