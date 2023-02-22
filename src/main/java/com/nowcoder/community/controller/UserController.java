@@ -2,6 +2,7 @@ package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
@@ -43,6 +44,8 @@ public class UserController {
     private String contextPath;
     @Value("${community.path.upload}")
     private String uploadPath;
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
@@ -134,13 +137,20 @@ public class UserController {
 
 
 
-    //@LoginRequired
+    //个人主页
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getprofilePage(@PathVariable("userId") int userId, Model model) {
         User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new IllegalStateException("该用户不存在");
+        }
         model.addAttribute("user",user);
+        //点赞数量
+        int userLikeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("userLikeCount",userLikeCount);
         return "/site/profile";
     }
+
 
 
 }
