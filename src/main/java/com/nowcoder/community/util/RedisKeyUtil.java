@@ -41,4 +41,6 @@ public class RedisKeyUtil {
     public static String getKaptchaKey(String owner){
         return PREFIX_KAPTCHA + SPLIT + owner;
     }
+
+
 }
