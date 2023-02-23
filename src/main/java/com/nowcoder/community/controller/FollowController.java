@@ -1,13 +1,23 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.FollowService;
+import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
+import com.nowcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author changzer
@@ -15,12 +25,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @apiNote
  */
 @Controller
-public class FollowController {
+public class FollowController implements CommunityConstant {
 
     @Autowired
     private FollowService followService;
     @Autowired
     private HostHolder hostHolder;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/follow")
     @ResponseBody
@@ -36,5 +48,58 @@ public class FollowController {
         User user = hostHolder.getUser();
         followService.unFollow(user.getId(), entityType,entityId);
         return CommunityUtil.getJSONString(0,"已取消关注");
+    }
+
+    @GetMapping("/followees/{userId}")
+    public String getFollowees(@PathVariable("userId") int userId, Page page, Model model){
+        User userById = userService.findUserById(userId);
+        if (userById == null){
+            throw new IllegalStateException("该用户不存在！");
+        }
+        model.addAttribute("user", userById);
+
+        page.setLimit(5);
+        page.setRows((int)followService.fingFolloweeCount(userId, ENTITY_TYPE_USER));
+        page.setPath("/followees/"+userId);
+        List<Map<String, Object>> followees = followService.findFollowees(userId, page.getOffset(), page.getLimit());
+
+        if (followees != null && !followees.isEmpty()){
+            for (Map<String, Object> map:followees){
+                User user = (User)map.get("user");
+                map.put("hasFollow",hasFollowed(user.getId()));
+            }
+        }
+        model.addAttribute("users", followees);
+        return "/site/followee";
+    }
+
+    @GetMapping("/followers/{userId}")
+    public String getFollowers(@PathVariable("userId") int userId, Page page, Model model){
+        User userById = userService.findUserById(userId);
+        if (userById == null){
+            throw new IllegalStateException("该用户不存在！");
+        }
+        model.addAttribute("user", userById);
+
+        page.setLimit(5);
+        page.setRows((int)followService.fingFollowerCount(userId, ENTITY_TYPE_USER));
+        page.setPath("/followers/"+userId);
+        List<Map<String, Object>> followers = followService.findFollowers(userId, page.getOffset(), page.getLimit());
+
+        if (followers != null && !followers.isEmpty()){
+            for (Map<String, Object> map:followers){
+                User user = (User)map.get("user");
+                map.put("hasFollow",hasFollowed(user.getId()));
+            }
+        }
+        model.addAttribute("users", followers);
+        return "/site/follower";
+    }
+
+    public boolean hasFollowed(int userId) {
+        if (hostHolder.getUser() == null){
+            return false;
+        }
+        return followService.hasFollowed(hostHolder.getUser().getId(), userId, ENTITY_TYPE_USER);
     }
 }
