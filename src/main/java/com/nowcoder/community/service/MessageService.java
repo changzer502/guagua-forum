@@ -42,13 +42,26 @@ public class MessageService {
         return messageMapper.selectLetterUnreadCount(userId, conversationId);
     }
 
-    public int addMessage(Message message){
+    public int addMessage(Message message) {
         message.setContent(HtmlUtils.htmlEscape(message.getContent()));
         message.setContent(sensitiveFilter.filter(message.getContent()));
         return messageMapper.insertMessage(message);
     }
 
-    public int readMessage(List<Integer> ids){
-        return messageMapper.updateStatus(ids,1);
+    public int readMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids, 1);
     }
+
+    public Message selectLastestNotice(int userId, String topic) {
+        return messageMapper.selectLastestNotice(userId, topic);
+    }
+
+    public int selectNoticeCount(int userId, String topic) {
+        return messageMapper.selectNoticeCount(userId, topic);
+    }
+
+    public int selectNoticeUnreadCount(int userId, String topic){
+        return messageMapper.selectNoticeUnreadCount(userId, topic);
+    }
+
 }
