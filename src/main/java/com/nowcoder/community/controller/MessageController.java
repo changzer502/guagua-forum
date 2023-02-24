@@ -179,4 +179,41 @@ public class MessageController implements CommunityConstant {
         }
         return messageVo;
     }
+
+    @GetMapping("/notice/detail/{topic}")
+    public String getNoticeDetail(@PathVariable String topic, Page page, Model model){
+        User user = hostHolder.getUser();
+
+        page.setLimit(5);
+        page.setRows(messageService.selectNoticeCount(user.getId(), topic));
+        page.setPath("/notice/detail/"+topic);
+
+        List<Message> messages = messageService.selectMessages(user.getId(), topic, page.getOffset(), page.getLimit());
+
+        List<Map<String,Object>> noticeVoList = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
+        if (noticeVoList != null){
+            for (Message notice : messages){
+                Map<String,Object> map = new HashMap<>();
+                //通知
+                map.put("notice",notice);
+                //内容
+                Map<String,Object> data = JSONObject.parseObject(HtmlUtils.htmlUnescape(notice.getContent()), HashMap.class);
+                map.put("user",userService.findUserById((Integer)data.get("userId")));
+                map.put("postId",data.get("postId"));
+                map.put("entityType",data.get("entityType"));
+                //通知作者
+                map.put("fromUser",userService.findUserById(notice.getFromId()));
+                ids.add(notice.getId());
+                noticeVoList.add(map);
+            }
+        }
+        model.addAttribute("notices",noticeVoList);
+
+        //设置已读
+        if (!ids.isEmpty()){
+            messageService.readMessage(ids);
+        }
+        return "/site/notice-detail";
+    }
 }

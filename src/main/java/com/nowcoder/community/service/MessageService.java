@@ -64,4 +64,8 @@ public class MessageService {
         return messageMapper.selectNoticeUnreadCount(userId, topic);
     }
 
+    public List<Message> selectMessages(int userId, String topic, int offset, int limit){
+        return messageMapper.selectMessages(userId, topic, offset, limit);
+    }
+
 }
