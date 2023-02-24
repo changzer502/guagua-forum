@@ -53,10 +53,10 @@ public class CommenController implements CommunityConstant {
                 .setData("postId", discussPostId);
         if (comment.getEntityType() == ENTITY_TYPE_POST){
             DiscussPost discussionPost = discussPostService.findDiscussionPost(comment.getEntityId());
-            event.setUserId(discussionPost.getUserId());
+            event.setEntityUserId(discussionPost.getUserId());
         }else if (comment.getEntityType() == ENTITY_TYPE_COMMENT){
             Comment target = commentService.selectCommentById(comment.getEntityId());
-            event.setUserId(target.getUserId());
+            event.setEntityUserId(target.getUserId());
         }
 
         eventProducer.fireEvent(event);

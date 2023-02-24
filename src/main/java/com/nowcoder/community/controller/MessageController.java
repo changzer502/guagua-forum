@@ -161,8 +161,8 @@ public class MessageController implements CommunityConstant {
     public Map<String, Object> getMessageByTopic(int userId, String topic){
         Message message = messageService.selectLastestNotice(userId, topic);
         Map<String,Object> messageVo = new HashMap<>();
+        messageVo.put("message", message);
         if (message != null){
-            messageVo.put("message", message);
             String content = HtmlUtils.htmlUnescape(message.getContent());
             Map<String,Object> data = JSONObject.parseObject(content, HashMap.class);
 
