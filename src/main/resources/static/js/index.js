@@ -4,7 +4,11 @@ $(function(){
 
 function publish() {
 	$("#publishModal").modal("hide");
-
+	// var token = $("meta[name='_csrf']").attr("content");
+	// var header = $("meta[name='_csrf_header']").attr("content");
+	// $(document).ajaxSend(function(e,xhr,options){
+	// 	xhr.setRequestHeader(header,token);
+	// });
 	// 获取标题和内容
 	var title = $("#recipient-name").val();
 	var content = $("#message-text").val();
