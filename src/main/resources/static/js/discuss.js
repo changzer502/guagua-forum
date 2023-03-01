@@ -22,7 +22,6 @@ function like(btn,entityType,entityId,entityUserId,postId) {
 
 //置顶
 function setTop() {
-    alert("aaaaaa");
     $.post(
         CONTET_PATH + "/discuss/top",
         {"id":$("#postId").val()},
