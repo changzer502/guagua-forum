@@ -149,7 +149,7 @@ public class EventConsumer implements CommunityConstant {
         String fileName = (String) event.getData().get("fileName");
         String suffix = (String) event.getData().get("suffix");
 
-        String cmd = wkImageCommand + " --quality 75"
+        String cmd = wkImageCommand + " --quality 75 "
                 + htmlUrl + " " + wkImageStorage + "/" + fileName + suffix;
         try {
             Runtime.getRuntime().exec(cmd);
@@ -158,7 +158,7 @@ public class EventConsumer implements CommunityConstant {
             LOG.error("生成长图失败: " + e.getMessage());
         }
         // 启用定时器,监视该图片,一旦生成了,则上传至七牛云.
-        UploadTask task = new UploadTask(fileName, suffix);
+        UploadTask task = new UploadTask(fileName, suffix.substring(1));
         Future future = taskScheduler.scheduleAtFixedRate(task, 500);
         task.setFuture(future);
     }
@@ -202,7 +202,7 @@ public class EventConsumer implements CommunityConstant {
                 return;
             }
 
-            String path = wkImageStorage + "/" + fileName + suffix;
+            String path = wkImageStorage + "/" + fileName+ "." + suffix;
             File file = new File(path);
             if (file.exists()) {
                 LOG.info(String.format("开始第%d次上传[%s].", ++uploadTimes, fileName));
